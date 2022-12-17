@@ -1,6 +1,8 @@
 import argparse
 import importlib
+import logging
 import shutil
+import signal
 import sys
 
 parser = argparse.ArgumentParser(description='A generic, modular scraper')
@@ -11,6 +13,20 @@ parser.add_argument('-f', '--filter', nargs='+')
 parser.add_argument('-o', '--saver', nargs='+')
 
 args = parser.parse_args()
+
+ctrl_c = False
+
+
+def handler(signum, frame):
+    global ctrl_c
+    if ctrl_c:
+        print(f"system: forcefully exiting...")
+        sys.exit(1)
+    print(f"system: ctrl+c was pressed (press ctrl+c again to force quit). exiting gracefully...")
+    ctrl_c = True
+
+
+signal.signal(signal.SIGINT, handler)
 
 
 def lazy_import(name):
@@ -32,6 +48,8 @@ to_scrape = scraper.Scraper.get_posts(scraper, cur_url)
 if to_scrape:
     while True:
         while to_scrape:
+            if ctrl_c:
+                sys.exit()
             image, meta = scraper.Scraper.get_post(scraper, to_scrape.pop())
             image, meta = filt.Filt.filt(filt, image, meta, args.filter[1:])
             if image and meta:
