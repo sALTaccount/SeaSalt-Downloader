@@ -30,7 +30,7 @@ For example, to scrape all images of Shirakami Fubuki from Safebooru, while filt
 python main.py -u "https://safebooru.org/index.php?page=post&s=list&tags=shirakami_fubuki+" \
 --scraper safebooru \
 --filter tag_filter 1girl \
---saver folder_no_meta "Fubuki with friends"
+--saver folder "Fubuki with friends"
 ```
 ## Writing Modules
 
