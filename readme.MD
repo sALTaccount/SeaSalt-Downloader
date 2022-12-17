@@ -32,6 +32,20 @@ python main.py -u "https://safebooru.org/index.php?page=post&s=list&tags=shiraka
 --filter tag_filter 1girl \
 --saver folder "Fubuki with friends"
 ```
+SeaSalt also supports a powerful preprocessing feature. For example, you can crop all of your images to a square with
+```commandline
+--preproc crop_aspect 1 1
+```
+The first number is the aspect ratio width, and the second the height. For example, you could crop to 16:9 with
+```commandline
+--preproc crop_aspect 16 9
+```
+There is also an option to resize images after cropping. The following crops and resizes to a 512x512 square
+```commandline
+--preproc crop_aspect_resize 1 1 512
+```
+`512` is the width, and the height is calculated from the width
+
 ## Writing Modules
 
 ### Scrapers
@@ -87,6 +101,20 @@ class Saver:
 ```
 You are free to implement variables, imports, and other functions into your `Saver` class as well
 
+## Preprocessors
+Each preprocessor must be a python file that contains a class `Processor`
+
+Your `Processor` class must implement a method named `process`
+```py
+class Processor:
+    def save(self, image, meta, args):
+        # image is a stream to the image
+        # meta is the image metadata (as defined in the scraper section)
+        # args are the optional arguments provided by the user
+        # must return a tuple containing a stream to the processed image and the meta (stream, meta)
+```
+You are free to implement variables, imports, and other functions into your `Processor` class as well
+
 ## TODO
 Features
 * Make readme more accurate
@@ -95,5 +123,3 @@ Features
 Modules
 * Zerochan scraper
 * Pixiv scraper
-* Resize saver
-* Biggest square saver

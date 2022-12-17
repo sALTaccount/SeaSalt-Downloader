@@ -7,10 +7,11 @@ import sys
 
 parser = argparse.ArgumentParser(description='A generic, modular scraper')
 
-parser.add_argument('-u', '--url')
-parser.add_argument('-s', '--scraper', nargs='+')
-parser.add_argument('-f', '--filter', nargs='+')
-parser.add_argument('-o', '--saver', nargs='+')
+parser.add_argument('-u', '--url', required=True)
+parser.add_argument('-s', '--scraper', nargs='+', required=True)
+parser.add_argument('-f', '--filter', nargs='+', required=True)
+parser.add_argument('-o', '--saver', nargs='+', required=True)
+parser.add_argument('-p', '--preproc', nargs='+')
 
 args = parser.parse_args()
 
@@ -42,6 +43,7 @@ def lazy_import(name):
 scraper = lazy_import('modules.scrapers.' + args.scraper[0])
 filt = lazy_import('modules.filters.' + args.filter[0])
 saver = lazy_import('modules.saver.' + args.saver[0])
+processor = lazy_import('modules.preproc.' + args.preproc[0]) if args.preproc else None
 
 cur_url = args.url
 to_scrape = scraper.Scraper.get_posts(scraper, cur_url)
@@ -52,6 +54,8 @@ if to_scrape:
                 sys.exit()
             image, meta = scraper.Scraper.get_post(scraper, to_scrape.pop())
             image, meta = filt.Filt.filt(filt, image, meta, args.filter[1:])
+            if processor:
+                image, meta = processor.Processor.process(processor, image, meta, args.preproc[1:])
             if image and meta:
                 saver.Saver.save(saver, image, meta, args.saver[1:])
                 print('Saved', meta['image_name'])
