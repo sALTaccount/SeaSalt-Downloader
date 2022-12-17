@@ -15,8 +15,12 @@ SeaSalt Downloder is a modular downloader for any site you can make a module for
 * Filters
    * No Filter (`no_filter`)
    * Tag filter (`tag_filter`)
+* Preprocessors
+   * Crop to aspect ratio ('crop_aspect')
+   * Crop to aspect ratio and resize ('crop_aspect_resize')
+   * Resize image by stretching ('resize')
 * Savers
-   * Folder with no metadata (`folder_no_meta`)
+   * Save to folder (`folder`)
 
 ## Usage
 ```commandline
