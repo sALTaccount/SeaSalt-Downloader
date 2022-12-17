@@ -91,7 +91,6 @@ You are free to implement variables, imports, and other functions into your `Sav
 Features
 * Make readme more accurate
 * Implement async
-* Setup exit handler
 
 Modules
 * Zerochan scraper
