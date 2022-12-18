@@ -14,19 +14,23 @@ class Scraper:
         return links
 
     def get_post(self, url):
-        body = requests.get(url).text
-        soup = BeautifulSoup(body, 'html.parser')
-        image_url = soup.find('li', {'id': 'post-info-size'}).contents[1].attrs['href']
-        meta = {'image_name': url.split('/')[-1].split('?')[0]}
-        tags = soup.find('section', {'class': 'image-container note-container'}).attrs['data-tags'].split()
-        meta['tags'] = tags
-        r = requests.get(image_url, stream=True)
-        if r.status_code == 200:
-            r.raw.decode_content = True
-            meta['ext'] = mimetypes.guess_extension(r.headers['content-type'])
-            return r.raw, meta
-        else:
-            print(f'Got {r.status_code} for {url}')
+        try:
+            body = requests.get(url).text
+            soup = BeautifulSoup(body, 'html.parser')
+            image_url = soup.find('li', {'id': 'post-info-size'}).contents[1].attrs['href']
+            meta = {'image_name': url.split('/')[-1].split('?')[0]}
+            tags = soup.find('section', {'class': 'image-container note-container'}).attrs['data-tags'].split()
+            meta['tags'] = tags
+            r = requests.get(image_url, stream=True)
+
+            if r.status_code == 200:
+                r.raw.decode_content = True
+                meta['ext'] = mimetypes.guess_extension(r.headers['content-type'])
+                return r.raw, meta
+            else:
+                print(f'Got {r.status_code} for {url}')
+        except Exception as e:
+            return None, None
 
     def next_page(self, url):
         body = requests.get(url).text

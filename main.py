@@ -1,14 +1,20 @@
+
 def scrape_one(param):
-    scraper, filt, processor, saver, url = param
-    image, meta = scraper.Scraper.get_post(scraper, url)
-    image, meta = filt.Filt.filt(filt, image, meta, args.filter[1:])
-    if processor:
-        image, meta = processor.Processor.process(processor, image, meta, args.preproc[1:])
-    if image and meta:
-        saver.Saver.save(saver, image, meta, args.saver[1:])
+    try:
+        scraper, filt, processor, saver, url = param
+        image, meta = scraper.get_post(url)
+        if image and meta:
+            image, meta = filt.filt(image, meta, args.filter[1:])
+        if processor and image and meta:
+            image, meta = processor.process(image, meta, args.preproc[1:])
+        if image and meta:
+            saver.save(image, meta, args.saver[1:])
+    except Exception as e:
+        pass
 
 
 if __name__ == '__main__':
+    import os
     import argparse
     import importlib
     import signal
@@ -24,21 +30,24 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--saver', nargs='+', required=True)
     parser.add_argument('-p', '--preproc', nargs='+')
     parser.add_argument('-a', '--parallel', action='store_true')
-    # parser.add_argument('-n', '--parallelism')
-    # parser.add_argument('-b', '--batch')
+    parser.add_argument('-b', '--batch_size')
+    parser.add_argument('-t', '--threads')
 
     args = parser.parse_args()
 
-    ctrl_c = False
+    BATCH_SIZE = args.batch_size if args.batch_size else 10
+    NUM_THREADS = args.threads if args.threads else os.cpu_count()
 
+    ctrl_c = False
 
     def handler(signum, frame):
         global ctrl_c
-        if ctrl_c:
+        if ctrl_c and __name__ == '__main__':
             print(f"system: forcefully exiting...")
             sys.exit(1)
-        print(f"system: ctrl+c was pressed (press ctrl+c again to force quit). exiting gracefully...")
-        ctrl_c = True
+        if not ctrl_c and __name__ == '__main__':
+            print(f"system: ctrl+c was pressed (press ctrl+c again to force quit). exiting gracefully...")
+            ctrl_c = True
 
 
     signal.signal(signal.SIGINT, handler)
@@ -59,31 +68,29 @@ if __name__ == '__main__':
     processor = lazy_import('modules.preproc.' + args.preproc[0]) if args.preproc else None
     saver = lazy_import('modules.saver.' + args.saver[0])
 
-    BATCH_SIZE = 3
-    NUM_THREADS = 16
+    scraper = scraper.Scraper()
+    filt = filt.Filt()
+    processor = processor.Processor()
+    saver = saver.Saver()
 
     if not args.parallel:
         cur_url = args.url
-        to_scrape = scraper.Scraper.get_posts(scraper, cur_url)
+        to_scrape = scraper.get_posts(cur_url)
         if to_scrape:
             while True:
                 while to_scrape:
                     if ctrl_c:
                         sys.exit()
-                    try:
-                        scrape_one((scraper, filt, processor, saver, to_scrape.pop()))
-                    except Exception as e:
-                        print(e)
-                cur_url = scraper.Scraper.next_page(scraper, cur_url)
+                    scrape_one((scraper, filt, processor, saver, to_scrape.pop()))
+                cur_url = scraper.next_page(cur_url)
                 if not cur_url:
                     break
                 print('Navigating to', cur_url)
-                to_scrape = scraper.Scraper.get_posts(scraper, cur_url)
+                to_scrape = scraper.get_posts(cur_url)
         else:
             print('No posts found!')
         print('Finished!')
     else:
-        raise NotImplementedError('parallel downloading doesn\'t work yet!')
         cont = True
         cur_url = args.url
         urls = []
@@ -92,9 +99,9 @@ if __name__ == '__main__':
             for _ in tqdm(range(BATCH_SIZE)):
                 if not cont:
                     break
-                new_urls = scraper.Scraper.get_posts(scraper, cur_url)
+                new_urls = scraper.get_posts(cur_url)
                 urls += new_urls
-                cur_url = scraper.Scraper.next_page(scraper, cur_url)
+                cur_url = scraper.next_page(cur_url)
                 if not cur_url:
                     cont = False
 
@@ -103,4 +110,3 @@ if __name__ == '__main__':
             p_map(scrape_one, tasks, **{"num_cpus": NUM_THREADS})
             if not cont:
                 break
-        print(urls)

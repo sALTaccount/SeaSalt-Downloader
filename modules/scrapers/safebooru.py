@@ -2,7 +2,7 @@ import mimetypes
 
 import requests
 from bs4 import BeautifulSoup
-
+import time
 
 class Scraper:
     def get_posts(self, url):
@@ -21,6 +21,7 @@ class Scraper:
         tags = soup.find('textarea', {'id': 'tags'}).contents[0].text.split()
         meta['tags'] = tags
         r = requests.get(image_url, stream=True)
+        time.sleep(0.5)
         if r.status_code == 200:
             r.raw.decode_content = True
             meta['ext'] = mimetypes.guess_extension(r.headers['content-type'])
