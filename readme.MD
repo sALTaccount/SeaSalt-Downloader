@@ -6,7 +6,7 @@ SeaSalt Downloder is a modular downloader for any site you can make a module for
  * Supports custom websites
  * Supports custom filters
  * Supports custom saving methods
- * Synchronous and Asynchronous download (TODO)
+ * Synchronous and Asynchronous download
 
 ## Included Modules:
 * Scrapers
@@ -50,13 +50,21 @@ There is also an option to resize images after cropping. The following crops and
 ```
 `512` is the width, and the height is calculated from the width
 
+### Parallel downloading
+SeaSalt supports parallel downloading.
+
+To use parallel downloading, pass the `--parallel` arg
+
+By default, it will set a batch size (the number of pages to download before distributing the tasks among the workers) to 10.
+The default number of threads to use is equal to the CPU cores.
+You can change this with the `--batch_size` and `--threads` arguments.
 ## Writing Modules
 
 ### Scrapers
 Each scraper must be a python file that contains a class `Scraper`
 
 The scraper class must implement the following methods
-```py
+```python
     def get_posts(self, url):
         # URL is a page containing posts
         # Must return a list of URLs to posts on the page
@@ -82,7 +90,7 @@ You are free to implement variables, imports, and other functions into your `Scr
 Each filter must be a python file the contains a class `Filt`
 
 The `Filt` class must implement a method named `filt`
-```py
+```python
     def filt(self, image, meta, args):
         # image is an image stream
         # meta is the image metadata (as defined in the scraper section)
@@ -96,7 +104,7 @@ You are free to implement variables, imports, and other functions into your `Fil
 Each saver must be a python file that contains a class `Save`
 
 Your `save` class must implement a method named `save`
-```py
+```python
 class Saver:
     def save(self, image, meta, args):
         # image is a stream to the image
@@ -109,7 +117,7 @@ You are free to implement variables, imports, and other functions into your `Sav
 Each preprocessor must be a python file that contains a class `Processor`
 
 Your `Processor` class must implement a method named `process`
-```py
+```python
 class Processor:
     def save(self, image, meta, args):
         # image is a stream to the image
@@ -121,9 +129,9 @@ You are free to implement variables, imports, and other functions into your `Pro
 
 ## TODO
 Features
-* Make readme more accurate
-* Implement async
+* Add the passing of arguments to the Scraper modules
 
 Modules
 * Zerochan scraper
 * Pixiv scraper
+* Sankaku scraper
