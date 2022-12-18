@@ -32,6 +32,8 @@ class Scraper:
         body = requests.get(url).text
         soup = BeautifulSoup(body, 'html.parser')
         pagination = soup.find('div', {'class': 'pagination'})
+        if not pagination:
+            return None
         next_pg = pagination.find('a', {'alt': 'next'})
         if next_pg:
             next_pg = 'https://safebooru.org/index.php' + next_pg.attrs['href']
