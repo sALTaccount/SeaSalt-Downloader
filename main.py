@@ -36,7 +36,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     BATCH_SIZE = args.batch_size if args.batch_size else 10
-    NUM_THREADS = args.threads if args.threads else os.cpu_count()
+    if args.parallel:
+        NUM_THREADS = args.threads if args.threads else os.cpu_count()
+        print(f'Using {NUM_THREADS} threads')
 
     ctrl_c = False
 
@@ -64,13 +66,15 @@ if __name__ == '__main__':
 
 
     scraper = lazy_import('modules.scrapers.' + args.scraper[0])
-    filt = lazy_import('modules.filters.' + args.filter[0])
+    filt = lazy_import('modules.filters.' + args.filter[0]) if args.filter else None
     processor = lazy_import('modules.preproc.' + args.preproc[0]) if args.preproc else None
     saver = lazy_import('modules.saver.' + args.saver[0])
 
     scraper = scraper.Scraper()
-    filt = filt.Filt()
-    processor = processor.Processor()
+    if args.filter:
+        filt = filt.Filt()
+    if args.preproc:
+        processor = processor.Processor()
     saver = saver.Saver()
 
     if not args.parallel:
@@ -110,3 +114,4 @@ if __name__ == '__main__':
             p_map(scrape_one, tasks, **{"num_cpus": NUM_THREADS})
             if not cont:
                 break
+            urls = []
