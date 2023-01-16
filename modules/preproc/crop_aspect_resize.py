@@ -8,7 +8,7 @@ class Processor:
         if meta['ext'] not in ['.jpg', '.jpeg', 'png']:
             return None, None
         image = Image.open(image)
-        format = Image.registered_extensions()[meta['ext']]
+        format = Image.registered_extensions()['.png']  # meta['ext']]
         aspect = float(int(args[0]) / int(args[1]))
         x = int(args[2])
         y = int(x * int(args[1]) / int(args[0]))
