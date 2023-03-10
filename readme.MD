@@ -65,12 +65,16 @@ Each scraper must be a python file that contains a class `Scraper`
 
 The scraper class must implement the following methods
 ```python
-    def get_posts(self, url):
+    def get_posts(self, url, parallel, args):
         # URL is a page containing posts
+        # parallel is if the user is parallel downloading
+        # args are the optional arguments provided by the user
         # Must return a list of URLs to posts on the page
         
-    def get_post(self, url):
+    def get_post(self, url, parallel, args):
         # URL is a URL to a post
+        # parallel is if the user is parallel downloading
+        # args are the optional arguments provided by the user
         # Return a tuple in which t[0] is a stream to the image
         # and t[1] is the image metadata
         #
@@ -81,8 +85,10 @@ The scraper class must implement the following methods
         # Other metadata can be added to the dictionary, but it is not
         # guaranteed support by existing modules
         
-    def next_page(self, url):
+    def next_page(self, url, parallel, args):
         # URL is a URL to the current page
+        # parallel is if the user is parallel downloading
+        # args are the optional arguments provided by the user
         # Return a URL to the next page
 ```
 You are free to implement variables, imports, and other functions into your `Scraper` class as well
@@ -128,9 +134,6 @@ class Processor:
 You are free to implement variables, imports, and other functions into your `Processor` class as well
 
 ## TODO
-Features
-* Add the passing of arguments to the Scraper modules
-
 Modules
 * Zerochan scraper
 * Pixiv scraper

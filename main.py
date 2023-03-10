@@ -2,7 +2,7 @@
 def scrape_one(param):
     try:
         scraper, filt, processor, saver, url = param
-        image, meta = scraper.get_post(url)
+        image, meta = scraper.get_post(url, args.parallel, args.scraper[1:])
         if image and meta:
             image, meta = filt.filt(image, meta, args.filter[1:])
         if processor and image and meta:
@@ -79,18 +79,18 @@ if __name__ == '__main__':
 
     if not args.parallel:
         cur_url = args.url
-        to_scrape = scraper.get_posts(cur_url)
+        to_scrape = scraper.get_posts(cur_url, args.parallel, args.scraper[1:])
         if to_scrape:
             while True:
                 while to_scrape:
                     if ctrl_c:
                         sys.exit()
                     scrape_one((scraper, filt, processor, saver, to_scrape.pop()))
-                cur_url = scraper.next_page(cur_url)
+                cur_url = scraper.next_page(cur_url, args.parallel, args.scraper[1:])
                 if not cur_url:
                     break
                 print('Navigating to', cur_url)
-                to_scrape = scraper.get_posts(cur_url)
+                to_scrape = scraper.get_posts(cur_url, args.parallel, args.scraper[1:])
         else:
             print('No posts found!')
         print('Finished!')
@@ -103,9 +103,9 @@ if __name__ == '__main__':
             for _ in tqdm(range(BATCH_SIZE)):
                 if not cont:
                     break
-                new_urls = scraper.get_posts(cur_url)
+                new_urls = scraper.get_posts(cur_url, args.parallel, args.scraper[1:])
                 urls += new_urls
-                cur_url = scraper.next_page(cur_url)
+                cur_url = scraper.next_page(cur_url, args.parallel, args.scraper[1:])
                 if not cur_url:
                     cont = False
 

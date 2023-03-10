@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 
 class Scraper:
-    def get_posts(self, url):
+    def get_posts(self, url, parallel, args):
         body = requests.get(url).text
         soup = BeautifulSoup(body, 'html.parser')
         links = []
@@ -13,7 +13,7 @@ class Scraper:
             links.append('https://aibooru.online' + link.attrs['href'])
         return links
 
-    def get_post(self, url):
+    def get_post(self, url, parallel, args):
         try:
             body = requests.get(url).text
             soup = BeautifulSoup(body, 'html.parser')
@@ -33,7 +33,7 @@ class Scraper:
         except Exception as e:
             return None, None
 
-    def next_page(self, url):
+    def next_page(self, url, parallel, args):
         body = requests.get(url).text
         soup = BeautifulSoup(body, 'html.parser')
         paginator = soup.find('a', {'class': 'paginator-next'})

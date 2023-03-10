@@ -13,4 +13,4 @@ class Saver:
                     json.dump(meta, f)
             elif args[1] == 'tags':
                 with open(args[0] + '/' + meta['image_name'] + '.txt', 'w') as f:
-                    f.write(', '.join(meta['tags']))
+                    f.write(', '.join(meta['tags']).replace('_', ' '))
