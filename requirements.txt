@@ -3,3 +3,4 @@ beautifulsoup4~=4.11.1
 tqdm~=4.64.1
 Pillow~=9.3.0
 p_tqdm
+httpx[http2]
